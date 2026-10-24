@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPTILAG PRO - Painel VIP & Otimização</title>
+
+    <!-- ÍCONE OFICIAL PARA TELA INICIAL (ANDROID / IOS) -->
+    <link rel="apple-touch-icon" href="27155.jpg">
+    <link rel="shortcut icon" href="27155.jpg" type="image/jpeg">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyberDark: '#070b12',
+                        cyberCard: '#0d1527',
+                        cyberBorder: '#1e2d4a',
+                        neonCyan: '#00f0ff',
+                        neonBlue: '#0066ff',
+                        neonPurple: '#7000ff'
+                    },
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        rajdhani: ['Rajdhani', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #05080f;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 0% 100%, rgba(0, 102, 255, 0.08) 0%, transparent 40%);
+            font-family: 'Rajdhani', sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .glow-cyan {
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #070b12;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #0066ff;
+            border-radius: 4px;
+        }
+
+        /* Animação Toast Notification */
+        @keyframes toastIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .toast-animate {
+            animation: toastIn 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col justify-between items-center pb-28 pt-4 px-3 sm:p-6">
+
+    <!-- SYSTEM TOAST NOTIFICATION CONTAINER -->
+    <div id="toastContainer" class="fixed top-4 z-50 left-1/2 -translate-x-1/2 w-11/12 max-w-sm pointer-events-none flex flex-col gap-2"></div>
+
+    <main class="w-full max-w-lg relative z-10 space-y-5">
+
+        <!-- CABEÇALHO GLOBAL -->
+        <header class="text-center mb-2 flex items-center justify-between bg-cyberCard/80 border border-cyberBorder p-3 rounded-2xl backdrop-blur-md shadow-lg">
+            <div class="flex items-center gap-2">
+                <div class="w-9 h-9 bg-cyberDark rounded-xl border border-neonCyan/40 flex items-center justify-center glow-cyan">
+                    <i class="fa-solid fa-crown text-neonCyan text-sm"></i>
+                </div>
+                <div class="text-left">
+                    <h1 class="font-orbitron font-black text-sm tracking-wider text-white">OPTILAG PRO</h1>
+                    <span class="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> SISTEMA VIP
+                    </span>
+                </div>
+            </div>
+            <div class="inline-flex items-center gap-1.5 bg-cyberDark border border-cyberBorder px-3 py-1 rounded-full text-[10px] tracking-widest text-neonCyan font-bold uppercase">
+                V3.0 PRO
+            </div>
+        </header>
+
+        <!-- ================= TELA DE LOGIN ================= -->
+        <section id="loginSection" class="bg-cyberCard/90 backdrop-blur-md rounded-2xl p-6 border border-cyberBorder shadow-2xl relative overflow-hidden transition-all duration-500 my-auto">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-neonCyan to-transparent"></div>
+
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 mx-auto mb-3 bg-cyberDark/80 rounded-2xl border border-neonCyan/40 flex items-center justify-center glow-cyan">
+                    <i class="fa-solid fa-key text-neonCyan text-2xl"></i>
+                </div>
+                <h2 class="font-orbitron font-bold text-xl text-white">ACESSO RESTRITO</h2>
+                <p class="text-slate-400 text-xs mt-1">Insira sua chave de acesso VIP para liberar o painel</p>
+            </div>
+
+            <form id="loginForm" class="space-y-4" onsubmit="handleLogin(event)">
+                <div>
+                    <label class="block text-xs uppercase font-bold text-slate-300 mb-1 tracking-wider">Chave de Licença VIP</label>
+                    <div class="relative">
+                        <input type="password" id="accessKey" placeholder="Digite sua chave..." required 
+                            class="w-full bg-cyberDark border border-cyberBorder rounded-xl px-4 py-3 text-neonCyan placeholder-slate-600 focus:outline-none focus:border-neonCyan transition-all font-mono tracking-widest text-center">
+                        <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-3.5 text-slate-500 hover:text-slate-300">
+                            <i id="eyeIcon" class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="loginFeedback" class="hidden text-center text-xs font-semibold py-2 rounded-lg"></div>
+
+                <button type="submit" id="btnLogin" 
+                    class="w-full bg-gradient-to-r from-neonBlue to-neonCyan text-cyberDark font-orbitron font-black py-3.5 px-6 rounded-xl text-sm tracking-wider uppercase shadow-lg hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 glow-cyan">
+                    <span>ENTRAR NO PAINEL VIP</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+
+            <!-- REDES SOCIAIS NA TELA DE LOGIN -->
+            <div class="mt-6 pt-4 border-t border-cyberBorder/60 text-center">
+                <p class="text-[11px] text-slate-400 mb-3 font-semibold uppercase tracking-wider">Redes Oficiais do Criador</p>
+                <div class="flex items-center justify-center gap-3">
+                    <a href="https://www.tiktok.com/@capitao.sensi?_r=1&_t=ZS-9ApPggX30cQ" target="_blank" rel="noopener noreferrer" 
+                       class="w-10 h-10 bg-cyberDark border border-cyberBorder rounded-xl flex items-center justify-center text-white hover:text-neonCyan hover:border-neonCyan transition-all shadow">
+                        <i class="fa-brands fa-tiktok text-base"></i>
+                    </a>
+                    <a href="https://www.instagram.com/capitao.sensi?exln=dGd6d2psODY3NzJu" target="_blank" rel="noopener noreferrer" 
+                       class="w-10 h-10 bg-cyberDark border border-cyberBorder rounded-xl flex items-center justify-center text-rose-400 hover:text-rose-300 hover:border-rose-400 transition-all shadow">
+                        <i class="fa-brands fa-instagram text-base"></i>
+                    </a>
+                    <a href="https://youtube.com/@capitaosensi?si=5rIBy2vH58APowdI" target="_blank" rel="noopener noreferrer" 
+                       class="w-10 h-10 bg-cyberDark border border-cyberBorder rounded-xl flex items-center justify-center text-red-500 hover:text-red-400 hover:border-red-500 transition-all shadow">
+                        <i class="fa-brands fa-youtube text-base"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= CONTAINER DO PAINEL ================= -->
+        <div id="dashboardSection" class="hidden space-y-4">
+
+            <!-- TAB 1: INÍCIO -->
+            <div id="tabContent-inicio" class="tab-content space-y-4">
+                <div class="bg-cyberCard/90 backdrop-blur-md rounded-2xl p-5 border border-cyberBorder shadow-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <i class="fa-solid fa-gamepad text-7xl text-neonCyan"></i>
+                    </div>
+                    <span class="text-[10px] font-bold text-neonCyan tracking-widest uppercase block mb-1">BEM-VINDO AO HUB</span>
+                    <h2 class="font-orbitron font-bold text-lg text-white mb-2">PAINEL OPERACIONAL PRONTO</h2>
+                    <p class="text-slate-400 text-xs leading-relaxed mb-4">
+                        Seu sistema está otimizado para o Free Fire. Ative os módulos de otimização ou abra o jogo diretamente no aplicativo.
+                    </p>
+                    
+                    <!-- BOTÕES DE INICIALIZAÇÃO DIRETA DO JOGO -->
+                    <div class="grid grid-cols-2 gap-2 pt-1 border-t border-cyberBorder/60">
+                        <button onclick="launchGame('ff')" class="bg-gradient-to-r from-amber-500 to-orange-600 text-cyberDark font-orbitron text-xs font-bold py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 hover:brightness-110 transition-all shadow">
+                            <i class="fa-solid fa-play"></i> FREE FIRE
+                        </button>
+                        <button onclick="launchGame('ffmax')" class="bg-gradient-to-r from-rose-500 to-red-600 text-white font-orbitron text-xs font-bold py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 hover:brightness-110 transition-all shadow">
+                            <i class="fa-solid fa-fire font-black"></i> FREE FIRE MAX
+                        </button>
+                    </div>
+                </div>
+
+                <!-- HARDWARE -->
+                <section class="bg-cyberCard/90 backdrop-blur-md rounded-2xl p-5 border border-cyberBorder shadow-xl">
+                    <div class="flex items-center justify-between mb-4 pb-2 border-b border-cyberBorder/60">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-microchip text-neonCyan text-lg"></i>
+                            <h3 class="font-orbitron font-bold text-sm text-white uppercase tracking-wider">Diagnóstico de Hardware</h3>
+                        </div>
+                        <span id="scanBadge" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> ATIVO
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 text-xs">
+                        <div class="bg-cyberDark/80 p-3 rounded-xl border border-cyberBorder">
+                            <span class="text-slate-400 block text-[10px] uppercase font-bold">Taxa de Tela</span>
+                            <div class="flex items-baseline gap-1 mt-1">
+                                <span id="screenHz" class="font-orbitron text-xl font-bold text-neonCyan">--</span>
+                                <span class="text-slate-400 font-semibold text-[10px]">Hz (FPS)</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-cyberDark/80 p-3 rounded-xl border border-cyberBorder">
+                            <span class="text-slate-400 block text-[10px] uppercase font-bold">Sistema Detectado</span>
+                            <div class="flex items-center gap-2 mt-1">
+                                <i id="osIcon" class="fa-brands fa-android text-emerald-400 text-lg"></i>
+                                <span id="osName" class="font-orbitron text-sm font-bold text-white">Detectando...</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-cyberDark/80 p-3 rounded-xl border border-cyberBorder">
+                            <span class="text-slate-400 block text-[10px] uppercase font-bold">Núcleos de CPU</span>
+                            <div class="flex items-baseline gap-1 mt-1">
+                                <span id="cpuCores" class="font-orbitron text-xl font-bold text-white">--</span>
+                                <span class="text-slate-400 font-semibold text-[10px]">Cores</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-cyberDark/80 p-3 rounded-xl border border-cyberBorder">
+                            <span class="text-slate-400 block text-[10px] uppercase font-bold">Status do Sistema</span>
+                            <div class="mt-1">
+                                <span id="systemStatus" class="font-orbitron text-xs font-bold text-amber-400 flex items-center gap-1">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> Pendente
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- TAB 2: OTIMIZAR -->
+            <div id="tabContent-otimizar" class="tab-content hidden space-y-4">
+                
+                <!-- CATEGORIAS -->
+                <div class="space-y-2">
+                    <span class="text-[10px] font-orbitron font-bold text-slate-400 uppercase tracking-widest block px-1">Categorias</span>
+                    <div class="grid grid-cols-4 gap-1.5 bg-cyberCard p-1.5 rounded-2xl border border-cyberBorder text-xs font-bold">
+                        <button onclick="filterCategory('todos', this)" class="cat-btn py-2 rounded-xl bg-neonBlue/20 text-neonCyan border border-neonBlue/40 text-center transition-all">Todos</button>
+                        <button onclick="filterCategory('fps', this)" class="cat-btn py-2 rounded-xl text-slate-400 hover:text-white text-center transition-all">FPS</button>
+                        <button onclick="filterCategory('graficos', this)" class="cat-btn py-2 rounded-xl text-slate-400 hover:text-white text-center transition-all">Gráficos</button>
+                        <button onclick="filterCategory('rede', this)" class="cat-btn py-2 rounded-xl text-slate-400 hover:text-white text-center transition-all">Rede</button>
+                    </div>
+                </div>
+
+                <!-- PAINEL DE OTIMIZAÇÃO -->
+                <section class="bg-cyberCard/90 backdrop-blur-md rounded-2xl p-4 border border-cyberBorder shadow-xl space-y-3">
+                    <span class="text-[10px] font-orbitron font-bold text-neonCyan uppercase tracking-widest block">Painel de Otimização</span>
+                    
+                    <div class="space-y-2.5">
+                        <div data-cat="fps todos" class="opt-item bg-cyberDark/80 p-3 rounded-xl border border-cyberBorder flex items-center justify-between transition-all">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-neonBlue/10 border border-neonBlue/30 flex items-center justify-center text-neonCyan">
+                                    <i class="fa-solid fa-bolt text-sm"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-white font-orbitron">Otimização Geral</h4>
+                                    <p class="text-[10px] text-slate-400">Melhore o desempenho geral do sistema</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer opt-checkbox" onchange="handleToggleChange(this, 'Otimização Geral')">
+                                <div class="w-9 h-5 bg-cyberBorder peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-neonCyan"></div>
+                            </label>
+                        </div>
+
+                        <div data-cat="graficos todos" class="opt-item bg-cyberDark/80 p-3 rounded-xl border border-cyberBorder flex items-center justify-between transition-all">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                                    <i class="fa-solid fa-briefcase text-sm"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-white font-orbitron">Armazenamento do Jogo</h4>
+                                    <p class="text-[10px] text-slate-400">Libere espaço nos arquivos temporários</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer opt-checkbox" onchange="handleToggleChange(this, 'Armazenamento do Jogo')">
+                                <div class="w-9 h-5 bg-cyberBorder peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-neonCyan"></div>
+                            </label>
+                        </div>
+
+                        <div data-cat="fps todos" class="opt-item bg-cyberDark/80 p-3 rounded-xl border border-cyberBorder flex items-center justify-between transition-all">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                                    <i class="fa-solid fa-clone text-sm"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-white font-orbitron">Fechar Apps em Segundo Plano</h4>
+                                    <p class="text-[10px] text-slate-400">Libere memória RAM no alternador</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer opt-checkbox" onchange="handleToggleChange(this, 'Fechar Apps em Segundo Plano')">
+                                <div class="w-9 h-5 bg-cyberBorder peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-neonCyan"></div>
+                            </label>
+                        </div>
+
+                        <div data-cat="rede todos" class="opt-item bg-cyberDark/80 p-3 rounded-xl border border-cyberBorder flex items-center justify-between transition-all">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
+                                    <i class="fa-solid fa-wifi text-sm"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-white font-orbitron">Estabilidade de Rede</h4>
+                                    <p class="text-[10px] text-slate-400">Reduza o ping e evite lag nas partidas</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer opt-checkbox" onchange="handleToggleChange(this, 'Estabilidade de Rede')">
+                                <div class="w-9 h-5 bg-cyberBorder peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-neonCyan"></div>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- CONFIGURAÇÕES AVANÇADAS -->
+                <section class="bg-cyberCard/90 backdrop-blur-md rounded-2xl p-4 border border-cyberBorder shadow-xl space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-orbitron font-bold text-neonCyan uppercase tracking-widest">Configurações Avançadas</span>
+                        <span class="text-[9px] bg-neonBlue/20 text-neonCyan border border-neonBlue/40 px-2 py-0.5 rounded font-mono font-bold">PRO</span>
+                    </div>
+
+                    <div class="space-y-3 text-xs">
+                        <div class="flex items-center justify-between bg-cyberDark/60 p-2.5 rounded-xl border border-cyberBorder">
+                            <div>
+                                <strong class="text-white block font-orbitron text-xs">Modo Turbo de CPU</strong>
+                                <span class="text-[10px] text-slate-400">Aumenta o clock lógico do processador</span>
+                            </div>
+                            <input type="checkbox" class="opt-checkbox accent-cyan-400 w-4 h-4 rounded" onchange="handleToggleChange(this, 'Modo Turbo de CPU')">
+                        </div>
+
+                        <div class="flex items-center justify-between bg-cyberDark/60 p-2.5 rounded-xl border border-cyberBorder">
+                            <div>
+                                <strong class="text-white block font-orbitron text-xs">Compressão Inteligente de Textura</strong>
+                                <span class="text-[10px] text-slate-400">Reduz uso de GPU sem perda visual</span>
+                            </div>
+                            <input type="checkbox" class="opt-checkbox accent-cyan-400 w-4 h-4 rounded" onchange="handleToggleChange(this, 'Compressão de Textura')">
+                        </div>
+
+                        <div class="flex items-center justify-between bg-cyberDark/60 p-2.5 rounded-xl border border-cyberBorder">
+                            <div>
+                                <strong class="text-white block font-orbitron text-xs">Congelar Apps em Segundo Plano</strong>
+                                <span class="text-[10px] text-slate-400">Impede consumo de RAM desnecessário</span>
+                            </div>
+                            <input type="checkbox" class="opt-checkbox accent-cyan-400 w-4 h-4 rounded" onchange="handleToggleChange(this, 'Congelar Apps')">
+                        </div>
+
+                        <div class="flex items-center justify-between bg-cyberDark/60 p-2.5 rounded-xl border border-cyberBorder">
+                            <div>
+                                <strong class="text-white block font-orbitron text-xs">Prioridade de Rede para o Jogo</strong>
+                                <span class="text-[10px] text-slate-400">Reserva banda exclusiva para o Free Fire</span>
+                            </div>
+                            <input type="checkbox" class="opt-checkbox accent-cyan-400 w-4 h-4 rounded" onchange="handleToggleChange(this, 'Prioridade de Rede')">
+                        </div>
+
+                        <div class="space-y-1.5 pt-1">
+                            <div class="flex justify-between text-[11px] font-bold text-slate-300">
+                                <span>Agressividade da Otimização</span>
+                                <span id="aggressivenessVal" class="text-neonCyan font-mono">75%</span>
+                            </div>
+                            <input type="range" min="50" max="100" value="75" oninput="updateAggressiveness(this.value)" class="w-full accent-cyan-400 bg-cyberDark rounded-lg cursor-pointer h-2">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- RECURSOS DO SISTEMA -->
+                <section class="bg-cyberCard/90 backdrop-blur-md rounded-2xl p-4 border border-cyberBorder shadow-xl space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-orbitron font-bold text-neonCyan uppercase tracking-widest">Recursos do Sistema</span>
+                        <span class="text-[9px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-2 py-0.5 rounded font-mono font-bold uppercase">SISTEMA</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div class="bg-cyberDark/80 p-3 rounded-xl border border-cyberBorder space-y-2">
+                            <div class="flex items-center gap-2 text-neonCyan">
+                                <i class="fa-solid fa-mobile-screen"></i>
+                                <strong class="font-orbitron text-white text-xs">Atalho na Tela Inicial</strong>
+                            </div>
+                            <p class="text-[10px] text-slate-400">Instala o painel como app nativo na tela do celular.</p>
+                            <button id="btnInstallApp" onclick="installPWA()" class="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 text-cyberDark font-bold py-2 rounded-xl text-[11px] font-orbitron shadow hover:brightness-110 transition-all">
+                                Instalar App
+                            </button>
+                        </div>
+
+                        <div class="bg-cyberDark/80 p-3 rounded-xl border border-cyberBorder space-y-2">
+                            <div class="flex items-center gap-2 text-amber-400">
+                                <i class="fa-solid fa-gear"></i>
+                                <strong class="font-orbitron text-white text-xs">Opções de Sistema</strong>
+                            </div>
+                            <p class="text-[10px] text-slate-400">Acesso às configurações de ajuste fino.</p>
+                            <button onclick="openDeveloperSettings()" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-cyberDark font-bold py-2 rounded-xl text-[11px] font-orbitron shadow hover:brightness-110 transition-all">
+                                Abrir Configuração
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <div id="progressContainer" class="hidden">
+                    <div class="flex justify-between text-xs mb-1 font-mono">
+                        <span id="optStatusText" class="text-neonCyan">Aplicando aceleração profunda...</span>
+                        <span id="optPercent" class="text-white font-bold">0%</span>
+                    </div>
+                    <div class="w-full h-3 bg-cyberDark rounded-full overflow-hidden p-0.5 border border-cyberBorder">
+                        <div id="progressBar" class="h-full bg-gradient-to-r from-neonBlue to-neonCyan rounded-full w-0 transition-all duration-200"></div>
+                    </div>
+                </div>
+
+                <button id="btnOptimize" onclick="runFullOptimization()" 
+                    class="w-full bg-gradient-to-r from-neonBlue to-neonCyan text-cyberDark font-orbitron font-black py-3.5 rounded-xl text-xs tracking-wider uppercase shadow-lg hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 glow-cyan">
+                    <i class="fa-solid fa-rocket"></i>
+                    <span>OTIMIZAR AGORA</span>
+                </button>
+            </div>
+
+            <!-- TAB 3: GERADOR DE SENSI 3.0 + ACESSIBILIDADE COMPLETA -->
+            <div id="tabContent-gerador" class="tab-content hidden space-y-4">
+                <section class="bg-cyberCard/90 backdrop-blur-md rounded-2xl p-5 border border-cyberBorder shadow-xl">
+                    <div class="flex items-center gap-2 mb-4">
+                        <i class="fa-solid fa-crosshair text-neonCyan text-lg"></i>
+                        <h3 class="font-orbitron font-bold text-sm text-white uppercase tracking-wider">GERADOR DE SENSIBILIDADE 3.0</h3>
+                    </div>
+
+                    <div class="flex bg-cyberDark p-1 rounded-xl border border-cyberBorder mb-4 text-xs font-bold">
+                        <button id="tabGeral" onclick="switchSensiTab('geral')" class="flex-1 py-2 rounded-lg bg-neonBlue/20 text-neonCyan border border-neonBlue/40 transition-all">
+                            <i class="fa-solid fa-sliders mr-1"></i> Modo Geral
+                        </button>
+                        <button id="tabArmas" onclick="switchSensiTab('armas')" class="flex-1 py-2 rounded-lg text-slate-400 hover:text-white transition-all">
+                            <i class="fa-solid fa-gun mr-1"></i> Por Arma
+                        </button>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-300 uppercase mb-1">Sistema Operacional</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button" onclick="setSO('Android')" id="btnSOAndroid" class="so-btn bg-cyberDark border border-neonCyan text-neonCyan font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-2">
+                                    <i class="fa-brands fa-android"></i> Android
+                                </button>
+                                <button type="button" onclick="setSO('iOS')" id="btnSOiOS" class="so-btn bg-cyberDark border border-cyberBorder text-slate-400 font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-2">
+                                    <i class="fa-brands fa-apple"></i> iOS
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-300 uppercase mb-1">Modelo do Aparelho</label>
+                            <input type="text" id="deviceModel" placeholder="Ex: Poco X7 Pro, Moto G8, iPhone 11..." 
+                                class="w-full bg-cyberDark border border-cyberBorder rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-neonCyan transition-all">
+                        </div>
+
+                        <div id="contentGeral">
+                            <label class="block text-[11px] font-bold text-slate-300 uppercase mb-1">Estilo de Sensibilidade</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                <button type="button" onclick="setLevel('Baixa', this)" class="level-btn bg-cyberDark border border-cyberBorder text-slate-300 font-semibold py-2 rounded-xl text-xs hover:border-neonCyan transition-all">Baixa</button>
+                                <button type="button" onclick="setLevel('Média', this)" class="level-btn bg-cyberDark border border-neonCyan text-neonCyan font-bold py-2 rounded-xl text-xs transition-all">Média</button>
+                                <button type="button" onclick="setLevel('Alta', this)" class="level-btn bg-cyberDark border border-cyberBorder text-slate-300 font-semibold py-2 rounded-xl text-xs hover:border-neonCyan transition-all">Alta</button>
+                                <button type="button" onclick="setLevel('Sem DPI', this)" id="btnStyleDpi" class="level-btn bg-cyberDark border border-cyberBorder text-slate-300 font-semibold py-2 rounded-xl text-xs hover:border-neonCyan transition-all">Sem DPI</button>
+                            </div>
+                        </div>
+
+                        <!-- SELEÇÃO DE ARMAS EXATAS -->
+                        <div id="contentArmas" class="hidden">
+                            <label class="block text-[11px] font-bold text-slate-300 uppercase mb-1.5">Escolha a Arma Principal do Meta:</label>
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <button type="button" onclick="selectWeapon('DESERT', this)" class="weapon-btn bg-cyberDark border border-neonCyan text-neonCyan font-bold p-2.5 rounded-xl text-left flex items-center justify-between">
+                                    <div>
+                                        <div class="font-orbitron font-bold">DESERT EAGLE</div>
+                                        <div class="text-[10px] text-slate-400 font-normal">Pistola / 1-Tap</div>
+                                    </div>
+                                    <i class="fa-solid fa-bullseye text-sm"></i>
+                                </button>
+                                
+                                <button type="button" onclick="selectWeapon('M1014', this)" class="weapon-btn bg-cyberDark border border-cyberBorder text-slate-300 font-semibold p-2.5 rounded-xl text-left flex items-center justify-between hover:border-neonCyan">
+                                    <div>
+                                        <div class="font-orbitron font-bold">M1014</div>
+                                        <div class="text-[10px] text-slate-400 font-normal">Doze / Curta Dist.</div>
+                                    </div>
+                                    <i class="fa-solid fa-fire text-sm"></i>
+                                </button>
+
+                                <button type="button" onclick="selectWeapon('MP40', this)" class="weapon-btn bg-cyberDark border border-cyberBorder text-slate-300 font-semibold p-2.5 rounded-xl text-left flex items-center justify-between hover:border-neonCyan">
+                                    <div>
+                                        <div class="font-orbitron font-bold">MP40</div>
+                                        <div class="text-[10px] text-slate-400 font-normal">SMG / Taxa Rápida</div>
+                                    </div>
+                                    <i class="fa-solid fa-bolt text-sm"></i>
+                                </button>
+
+                                <button type="button" onclick="selectWeapon('UMP', this)" class="weapon-btn bg-cyberDark border border-cyberBorder text-slate-300 font-semibold p-2.5 rounded-xl text-left flex items-center justify-between hover:border-neonCyan">
+                                    <div>
+                                        <div class="font-orbitron font-bold">UMP</div>
+                                        <div class="text-[10px] text-slate-400 font-normal">SMG / Versátil Meta</div>
+                                    </div>
+                                    <i class="fa-solid fa-crosshair text-sm"></i>
+                                </button>
+
+                                <button type="button" onclick="selectWeapon('AC80', this)" class="weapon-btn bg-cyberDark border border-cyberBorder text-slate-300 font-semibold p-2.5 rounded-xl text-left flex items-center justify-between hover:border-neonCyan">
+                                    <div>
+                                        <div class="font-orbitron font-bold">AC80</div>
+                                        <div class="text-[10px] text-slate-400 font-normal">Atirador / Alto Dano</div>
+                                    </div>
+                                    <i class="fa-solid fa-shield-cat text-sm"></i>
+                                </button>
+
+                                <button type="button" onclick="selectWeapon('CARAPINA', this)" class="weapon-btn bg-cyberDark border border-cyberBorder text-slate-300 font-semibold p-2.5 rounded-xl text-left flex items-center justify-between hover:border-neonCyan">
+                                    <div>
+                                        <div class="font-orbitron font-bold">SVD / CARAPINA</div>
+                                        <div class="text-[10px] text-slate-400 font-normal">Atirador / Longa</div>
+                                    </div>
+                                    <i class="fa-solid fa-crosshair text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <button onclick="generateSensi()" class="w-full mt-2 bg-gradient-to-r from-neonBlue to-neonCyan text-cyberDark font-orbitron font-black py-3 rounded-xl text-xs tracking-wider uppercase shadow-lg hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 glow-cyan">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span id="btnGerarText">GERAR SENSI IDEAL</span>
+                        </button>
+                    </div>
+
+                    <div id="sensiResult" class="hidden mt-5 pt-4 border-t border-cyberBorder/80 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="font-orbitron font-bold text-xs text-neonCyan uppercase" id="resultHeader">Configuração Gerada (0-200)</span>
+                            <span id="sensiTag" class="text-[10px] font-mono bg-neonBlue/20 text-neonCyan px-2 py-0.5 rounded border border-neonBlue/40">SENSITIVITY 3.0 VIP</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+                            <div class="bg-cyberDark p-2.5 rounded-xl border border-cyberBorder flex justify-between items-center">
+                                <span class="text-slate-400">Geral:</span>
+                                <span id="valGeral" class="font-bold text-neonCyan">--</span>
+                            </div>
+                            <div class="bg-cyberDark p-2.5 rounded-xl border border-cyberBorder flex justify-between items-center">
+                                <span class="text-slate-400">P. Vermelho:</span>
+                                <span id="valRedDot" class="font-bold text-rose-400">--</span>
+                            </div>
+                            <div class="bg-cyberDark p-2.5 rounded-xl border border-cyberBorder flex justify-between items-center">
+                                <span class="text-slate-400">Mira 2x:</span>
+                                <span id="valMira2x" class="font-bold text-white">--</span>
+                            </div>
+                            <div class="bg-cyberDark p-2.5 rounded-xl border border-cyberBorder flex justify-between items-center">
+                                <span class="text-slate-400">Mira 4x:</span>
+                                <span id="valMira4x" class="font-bold text-white">--</span>
+                            </div>
+                            <div class="bg-cyberDark p-2.5 rounded-xl border border-cyberBorder flex justify-between items-center">
+                                <span class="text-slate-400">AWM:</span>
+                                <span id="valAwm" class="font-bold text-white">--</span>
+                            </div>
+                            <div class="bg-cyberDark p-2.5 rounded-xl border border-cyberBorder flex justify-between items-center">
+                                <span class="text-slate-400">Olhadinha:</span>
+                                <span id="valOlhadinha" class="font-bold text-white">--</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-cyberDark/90 p-3 rounded-xl border border-cyberBorder/80 space-y-1.5 text-xs">
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400">Botão de Tiro:</span>
+                                <span id="valBotaoTiro" class="font-bold text-amber-400 font-mono">--</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span id="labelSysOpt1" class="text-slate-400">DPI Recomendada:</span>
+                                <span id="valDpi" class="font-bold text-neonCyan font-mono">--</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span id="labelSysOpt2" class="text-slate-400">Velocidade do Ponteiro:</span>
+                                <span id="valVelocidade" class="font-bold text-emerald-400 font-mono">--</span>
+                            </div>
+                        </div>
+
+                        <button onclick="copySensitivity()" class="w-full bg-cyberDark hover:bg-cyberBorder border border-cyberBorder text-slate-200 font-bold py-2.5 rounded-xl text-xs transition-all flex items-center justify-center gap-2">
+                            <i class="fa-regular fa-copy"></i>
+                            <span id="copyBtnText">COPIAR CONFIGURAÇÃO</span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- GUIA COMPLETO DE ACESSIBILIDADE -->
+                <section class="bg-cyberCard/90 backdrop-blur-md rounded-2xl p-5 border border-cyberBorder shadow-xl">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i class="fa-solid fa-sliders text-neonBlue text-lg"></i>
+                        <h3 id="guideTitle" class="font-orbitron font-bold text-sm text-white uppercase tracking-wider">Ajustes de Acessibilidade (Android)</h3>
+                    </div>
+                    <p id="guideSubtitle" class="text-slate-400 text-xs mb-3">Configure essas opções nas configurações do seu celular para reduzir a trepidação da mira:</p>
+
+                    <ul id="guideList" class="space-y-2 text-xs text-slate-300"></ul>
+                </section>
+            </div>
+
+            <!-- TAB 4: GUIAS & DICAS -->
+            <div id="tabContent-guias" class="tab-content hidden space-y-4">
+                <section class="bg-cyberCard/90 backdrop-blur-md rounded-2xl p-5 border border-cyberBorder shadow-xl space-y-3">
+                    <div class="flex items-center gap-2 mb-1">
+                        <i class="fa-solid fa-lightbulb text-amber-400 text-lg"></i>
+                        <h3 class="font-orbitron font-bold text-sm text-white uppercase tracking-wider">Dicas & Soluções VIP</h3>
+                    </div>
+                    <p class="text-slate-400 text-xs">Guia rápido para calibrar a mira no jogo e manter o celular sem travamentos:</p>
+
+                    <div class="space-y-2 text-xs">
+                        <div class="bg-cyberDark/80 p-3 rounded-xl border border-cyberBorder space-y-1">
+                            <div class="flex items-center gap-1.5 text-rose-400 font-bold uppercase">
+                                <i class="fa-solid fa-arrow-up text-xs"></i> Mira Passando da Cabeça?
+                            </div>
+                            <p class="text-slate-300">Diminua a sensibilidade <strong>Geral</strong> de 2 em 2 pontos ou reduza o tamanho do <strong>Botão de Tiro em 2%</strong> até grudar no capacete.</p>
+                        </div>
+
+                        <div class="bg-cyberDark/80 p-3 rounded-xl border border-cyberBorder space-y-1">
+                            <div class="flex items-center gap-1.5 text-amber-400 font-bold uppercase">
+                                <i class="fa-solid fa-arrow-down text-xs"></i> Mira Grudando no Peito?
+                            </div>
+                            <p class="text-slate-300">Aumente a sensibilidade <strong>Geral e Ponto Vermelho</strong> em +3 pontos ou posicione o botão de tiro mais em baixo na tela.</p>
+                        </div>
+
+                        <div class="bg-cyberDark/80 p-3 rounded-xl border border-cyberBorder space-y-1">
+                            <div class="flex items-center gap-1.5 text-emerald-400 font-bold uppercase">
+                                <i class="fa-solid fa-battery-charging text-xs"></i> Otimização de Bateria & FPS Real
+                            </div>
+                            <p class="text-slate-300">Jogue com a bateria acima de 20%, desative a economia de energia do sistema e feche aplicativos pesados em segundo plano.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- RODAPÉ DE REDES SOCIAIS NO PAINEL INTERNO -->
+            <footer class="pt-2 text-center space-y-2">
+                <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Comunidade & Suporte Oficial</p>
+                <div class="flex items-center justify-center gap-3">
+                    <a href="https://www.tiktok.com/@capitao.sensi?_r=1&_t=ZS-9ApPggX30cQ" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-neonCyan transition-all text-sm">
+                        <i class="fa-brands fa-tiktok"></i>
+                    </a>
+                    <a href="https://www.instagram.com/capitao.sensi?exln=dGd6d2psODY3NzJu" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-rose-400 transition-all text-sm">
+                        <i class="fa-brands fa-instagram"></i>
+                    </a>
+                    <a href="https://youtube.com/@capitaosensi?si=5rIBy2vH58APowdI" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-red-500 transition-all text-sm">
+                        <i class="fa-brands fa-youtube"></i>
+                    </a>
+                </div>
+            </footer>
+
+        </div>
+
+    </main>
+
+    <!-- BARRA DE NAVEGAÇÃO INFERIOR -->
+    <nav id="bottomNav" class="hidden fixed bottom-0 left-0 right-0 bg-cyberDark/95 backdrop-blur-lg border-t border-cyberBorder px-4 py-2.5 z-50 max-w-lg mx-auto shadow-2xl">
+        <div class="flex justify-around items-center">
+            <button onclick="switchTab('inicio')" id="navBtn-inicio" class="nav-btn flex flex-col items-center gap-1 text-neonCyan transition-all py-1 px-3">
+                <i class="fa-solid fa-house text-base"></i>
+                <span class="text-[10px] font-orbitron font-bold">Início</span>
+            </button>
+            <button onclick="switchTab('otimizar')" id="navBtn-otimizar" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition-all py-1 px-3">
+                <i class="fa-solid fa-bolt text-base"></i>
+                <span class="text-[10px] font-orbitron font-bold">Otimizar</span>
+            </button>
+            <button onclick="switchTab('gerador')" id="navBtn-gerador" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition-all py-1 px-3">
+                <i class="fa-solid fa-wand-magic-sparkles text-base"></i>
+                <span class="text-[10px] font-orbitron font-bold">Gerador</span>
+            </button>
+            <button onclick="switchTab('guias')" id="navBtn-guias" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition-all py-1 px-3">
+                <i class="fa-solid fa-book-open text-base"></i>
+                <span class="text-[10px] font-orbitron font-bold">Guias</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- SCRIPT DO PAINEL -->
+    <script>
+        let selectedSO = 'Android';
+        let selectedLevel = 'Média';
+        let currentMode = 'geral'; 
+        let selectedWeapon = 'DESERT';
+        const VALID_KEY = "VIP2026";
+
+        // Sistema de Notificações Flutuantes (Toast)
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            const isSuccess = type === 'success';
+            toast.className = `toast-animate px-4 py-2.5 rounded-xl border text-xs font-orbitron font-bold flex items-center gap-2 shadow-2xl backdrop-blur-md ${
+                isSuccess 
+                ? 'bg-emerald-950/90 text-emerald-300 border-emerald-500/50' 
+                : 'bg-rose-950/90 text-rose-300 border-rose-500/50'
+            }`;
+            
+            toast.innerHTML = `<i class="fa-solid ${isSuccess ? 'fa-circle-check text-emerald-400' : 'fa-circle-xmark text-rose-400'}"></i> <span>${message}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+
+        function handleToggleChange(checkbox, featureName) {
+            if (checkbox.checked) {
+                showToast(`${featureName}: Ativado com sucesso!`, 'success');
+            } else {
+                showToast(`${featureName}: Desativado.`, 'error');
+            }
+        }
+
+        // Abertura Direta do Jogo (Cross-Platform)
+        function launchGame(game) {
+            showToast("Iniciando o jogo... Boa partida!", 'success');
+            const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+            
+            setTimeout(() => {
+                if (game === 'ff') {
+                    if (isIOS) {
+                        window.location.href = "freefire://";
+                        setTimeout(() => { window.location.href = "https://apps.apple.com/app/id1300146653"; }, 1500);
+                    } else {
+                        window.location.href = "intent://#Intent;package=com.dts.freefireth;scheme=android-app;end";
+                    }
+                } else {
+                    if (isIOS) {
+                        window.location.href = "freefiremax://";
+                        setTimeout(() => { window.location.href = "https://apps.apple.com/app/id1480516829"; }, 1500);
+                    } else {
+                        window.location.href = "intent://#Intent;package=com.dts.freefiremax;scheme=android-app;end";
+                    }
+                }
+            }, 500);
+        }
+
+        // PWA (Atalho Tela Inicial)
+        let deferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+
+        function installPWA() {
+            const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+            if (isIOS) {
+                alert("Para instalar no iPhone:\n1. Toque no botão 'Compartilhar' do Safari (ícone com quadrado e seta).\n2. Selecione 'Adicionar à Tela de Início'.");
+            } else if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        showToast("App adicionado à tela inicial!", 'success');
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                alert("Para instalar na tela inicial:\n1. Clique nos três pontinhos do navegador.\n2. Escolha 'Adicionar à tela inicial' ou 'Instalar aplicativo'.");
+            }
+        }
+
+        function openDeveloperSettings() {
+            const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+            if (isIOS) {
+                alert("Orientações iOS (Acessibilidade):\nAcesse: Ajustes > Acessibilidade > Controle por Chaves / Adaptações ao Toque para ajustar o tempo de resposta.");
+            } else {
+                try {
+                    window.location.href = "intent://#Intent;action=android.settings.APPLICATION_DEVELOPMENT_SETTINGS;end";
+                } catch (e) {
+                    alert("Acesse: Configurações > Sobre o telefone > Toque 7 vezes em 'Número da versão' para ativar as Opções do Desenvolvedor.");
+                }
+            }
+        }
+
+        function showFeedback(text, isError = false) {
+            const feedback = document.getElementById('loginFeedback');
+            feedback.textContent = text;
+            feedback.className = `text-center text-xs font-semibold py-2 rounded-lg ${isError ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'}`;
+            feedback.classList.remove('hidden');
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const keyInput = document.getElementById('accessKey').value.trim();
+
+            if (keyInput === VALID_KEY) {
+                showFeedback("Acesso Autorizado! Redirecionando...", false);
+                setTimeout(() => {
+                    document.getElementById('loginSection').classList.add('hidden');
+                    document.getElementById('dashboardSection').classList.remove('hidden');
+                    document.getElementById('bottomNav').classList.remove('hidden');
+                    
+                    // Resetar checkboxes no login
+                    document.querySelectorAll('.opt-checkbox').forEach(cb => cb.checked = false);
+
+                    startHardwareDiagnostic();
+                    showToast("Sessão VIP Autenticada!", 'success');
+                }, 800);
+            } else {
+                showFeedback("Chave VIP inválida! Tente novamente.", true);
+            }
+        }
+
+        function togglePasswordVisibility() {
+            const input = document.getElementById('accessKey');
+            const icon = document.getElementById('eyeIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa-solid fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa-solid fa-eye';
+            }
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tabContent-${tabName}`).classList.remove('hidden');
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.className = "nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition-all py-1 px-3");
+            const activeBtn = document.getElementById(`navBtn-${tabName}`);
+            if (activeBtn) activeBtn.className = "nav-btn flex flex-col items-center gap-1 text-neonCyan transition-all py-1 px-3 scale-105";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function filterCategory(cat, btn) {
+            document.querySelectorAll('.cat-btn').forEach(b => b.className = "cat-btn py-2 rounded-xl text-slate-400 hover:text-white text-center transition-all");
+            btn.className = "cat-btn py-2 rounded-xl bg-neonBlue/20 text-neonCyan border border-neonBlue/40 text-center transition-all";
+            document.querySelectorAll('.opt-item').forEach(item => {
+                const categories = item.getAttribute('data-cat');
+                if (cat === 'todos' || categories.includes(cat)) {
+                    item.classList.remove('hidden');
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+        }
+
+        function updateAggressiveness(val) {
+            document.getElementById('aggressivenessVal').textContent = val + '%';
+        }
+
+        function runFullOptimization() {
+            const btn = document.getElementById('btnOptimize');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const optPercent = document.getElementById('optPercent');
+            const optStatusText = document.getElementById('optStatusText');
+
+            btn.disabled = true;
+            btn.classList.add('opacity-50');
+            progressContainer.classList.remove('hidden');
+
+            const steps = [
+                { p: 25, text: "Aplicando Modo Turbo de CPU..." },
+                { p: 55, text: "Congelando aplicativos em segundo plano..." },
+                { p: 85, text: "Otimizando prioridade de rede e FPS..." },
+                { p: 100, text: "Aceleração concluída com sucesso!" }
+            ];
+
+            let stepIdx = 0;
+            const interval = setInterval(() => {
+                if (stepIdx < steps.length) {
+                    const step = steps[stepIdx];
+                    progressBar.style.width = `${step.p}%`;
+                    optPercent.textContent = `${step.p}%`;
+                    optStatusText.textContent = step.text;
+                    stepIdx++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        btn.disabled = false;
+                        btn.classList.remove('opacity-50');
+                        showToast("Otimização concluída!", 'success');
+                    }, 500);
+                }
+            }, 500);
+        }
+
+        function startHardwareDiagnostic() {
+            const ua = navigator.userAgent;
+            const osNameEl = document.getElementById('osName');
+            const osIconEl = document.getElementById('osIcon');
+
+            if (/iphone|ipad|ipod/i.test(ua)) {
+                osNameEl.textContent = 'iOS (iPhone)';
+                osIconEl.className = 'fa-brands fa-apple text-white text-lg';
+                setSO('iOS');
+            } else {
+                osNameEl.textContent = 'Android';
+                osIconEl.className = 'fa-brands fa-android text-emerald-400 text-lg';
+                setSO('Android');
+            }
+
+            document.getElementById('cpuCores').textContent = navigator.hardwareConcurrency || 8;
+            measureScreenHz();
+        }
+
+        function measureScreenHz() {
+            let frames = 0;
+            let startTime = performance.now();
+            function checkFrame(now) {
+                frames++;
+                if (now - startTime >= 1000) {
+                    const fps = Math.round((frames * 1000) / (now - startTime));
+                    let hzDisplay = fps > 105 ? 120 : (fps > 75 ? 90 : 60);
+                    document.getElementById('screenHz').textContent = hzDisplay;
+                    document.getElementById('systemStatus').innerHTML = `<i class="fa-solid fa-circle-check"></i> ${hzDisplay}Hz Estável`;
+                    document.getElementById('systemStatus').className = "font-orbitron text-xs font-bold text-emerald-400 flex items-center gap-1";
+                    return;
+                }
+                requestAnimationFrame(checkFrame);
+            }
+            requestAnimationFrame(checkFrame);
+        }
+
+        function setSO(so) {
+            selectedSO = so;
+            updateSOUI();
+        }
+
+        function updateSOUI() {
+            const btnAndroid = document.getElementById('btnSOAndroid');
+            const btniOS = document.getElementById('btnSOiOS');
+            const btnStyleDpi = document.getElementById('btnStyleDpi');
+            const guideTitle = document.getElementById('guideTitle');
+            const guideSubtitle = document.getElementById('guideSubtitle');
+            const guideList = document.getElementById('guideList');
+
+            const labelSysOpt1 = document.getElementById('labelSysOpt1');
+            const labelSysOpt2 = document.getElementById('labelSysOpt2');
+
+            if (selectedSO === 'Android') {
+                btnAndroid.className = "so-btn bg-cyberDark border border-neonCyan text-neonCyan font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-2";
+                btniOS.className = "so-btn bg-cyberDark border border-cyberBorder text-slate-400 font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-2";
+                btnStyleDpi.textContent = "Sem DPI";
+                labelSysOpt1.textContent = "DPI Recomendada:";
+                labelSysOpt2.textContent = "Velocidade do Ponteiro:";
+
+                guideTitle.textContent = "Ajustes de Acessibilidade (Android)";
+                guideSubtitle.textContent = "Configure essas opções nas Configurações do Android para estabilizar o toque:";
+                
+                guideList.innerHTML = `
+                    <li class="bg-cyberDark/70 p-2.5 rounded-xl border border-cyberBorder/60 flex items-start gap-2">
+                        <i class="fa-solid fa-circle-check text-neonCyan mt-0.5"></i>
+                        <div>
+                            <strong class="text-white block">Atraso ao Manter Pressionado:</strong>
+                            <span class="text-slate-400">Defina para "Curto" (0.5s).</span>
+                        </div>
+                    </li>
+                    <li class="bg-cyberDark/70 p-2.5 rounded-xl border border-cyberBorder/60 flex items-start gap-2">
+                        <i class="fa-solid fa-circle-check text-neonCyan mt-0.5"></i>
+                        <div>
+                            <strong class="text-white block">Escala de Animação (Dev):</strong>
+                            <span class="text-slate-400">Mude Janela, Transição e Duração para 0.5x.</span>
+                        </div>
+                    </li>
+                    <li class="bg-cyberDark/70 p-2.5 rounded-xl border border-cyberBorder/60 flex items-start gap-2">
+                        <i class="fa-solid fa-circle-check text-neonCyan mt-0.5"></i>
+                        <div>
+                            <strong class="text-white block">Ponteiro do Mouse Grande:</strong>
+                            <span class="text-slate-400">Ative nas opções de acessibilidade.</span>
+                        </div>
+                    </li>
+                `;
+            } else {
+                btniOS.className = "so-btn bg-cyberDark border border-neonCyan text-neonCyan font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-2";
+                btnAndroid.className = "so-btn bg-cyberDark border border-cyberBorder text-slate-400 font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-2";
+                btnStyleDpi.textContent = "Padrão iOS";
+                labelSysOpt1.textContent = "Curso Móvel / Ciclos:";
+                labelSysOpt2.textContent = "Sensibilidade do Toque:";
+
+                guideTitle.textContent = "Ajustes de Acessibilidade (iOS / iPhone)";
+                guideSubtitle.textContent = "Configure em Ajustes > Acessibilidade > Controle por Chaves no seu iOS:";
+                
+                guideList.innerHTML = `
+                    <li class="bg-cyberDark/70 p-2.5 rounded-xl border border-cyberBorder/60 flex items-start gap-2">
+                        <i class="fa-solid fa-circle-check text-neonCyan mt-0.5"></i>
+                        <div>
+                            <strong class="text-white block">Curso Móvel (Controle por Chaves):</strong>
+                            <span class="text-slate-400">Ajuste para o modo "Rápido" e defina o valor em 120.</span>
+                        </div>
+                    </li>
+                    <li class="bg-cyberDark/70 p-2.5 rounded-xl border border-cyberBorder/60 flex items-start gap-2">
+                        <i class="fa-solid fa-circle-check text-neonCyan mt-0.5"></i>
+                        <div>
+                            <strong class="text-white block">Adaptações ao Toque:</strong>
+                            <span class="text-slate-400">Ative a Duração do Toque e ajuste para 0.10s.</span>
+                        </div>
+                    </li>
+                    <li class="bg-cyberDark/70 p-2.5 rounded-xl border border-cyberBorder/60 flex items-start gap-2">
+                        <i class="fa-solid fa-circle-check text-neonCyan mt-0.5"></i>
+                        <div>
+                            <strong class="text-white block">AssistiveTouch (Rastreamento):</strong>
+                            <span class="text-slate-400">Coloque a Sensibilidade de Rastreamento no Máximo.</span>
+                        </div>
+                    </li>
+                `;
+            }
+        }
+
+        function switchSensiTab(mode) {
+            currentMode = mode;
+            const tabGeral = document.getElementById('tabGeral');
+            const tabArmas = document.getElementById('tabArmas');
+            const contentGeral = document.getElementById('contentGeral');
+            const contentArmas = document.getElementById('contentArmas');
+            const btnText = document.getElementById('btnGerarText');
+
+            if (mode === 'geral') {
+                tabGeral.className = "flex-1 py-2 rounded-lg bg-neonBlue/20 text-neonCyan border border-neonBlue/40 transition-all";
+                tabArmas.className = "flex-1 py-2 rounded-lg text-slate-400 hover:text-white transition-all";
+                contentGeral.classList.remove('hidden');
+                contentArmas.classList.add('hidden');
+                btnText.textContent = "GERAR SENSI IDEAL";
+            } else {
+                tabArmas.className = "flex-1 py-2 rounded-lg bg-neonBlue/20 text-neonCyan border border-neonBlue/40 transition-all";
+                tabGeral.className = "flex-1 py-2 rounded-lg text-slate-400 hover:text-white transition-all";
+                contentArmas.classList.remove('hidden');
+                contentGeral.classList.add('hidden');
+                btnText.textContent = "CALIBRAR PARA ESTA ARMA";
+            }
+        }
+
+        function setLevel(lvl, btn) {
+            selectedLevel = lvl;
+            document.querySelectorAll('.level-btn').forEach(b => b.className = "level-btn bg-cyberDark border border-cyberBorder text-slate-300 font-semibold py-2 rounded-xl text-xs hover:border-neonCyan transition-all");
+            btn.className = "level-btn bg-cyberDark border border-neonCyan text-neonCyan font-bold py-2 rounded-xl text-xs transition-all";
+        }
+
+        function selectWeapon(w, btn) {
+            selectedWeapon = w;
+            document.querySelectorAll('.weapon-btn').forEach(b => b.className = "weapon-btn bg-cyberDark border border-cyberBorder text-slate-300 font-semibold p-2.5 rounded-xl text-left flex items-center justify-between hover:border-neonCyan");
+            btn.className = "weapon-btn bg-cyberDark border border-neonCyan text-neonCyan font-bold p-2.5 rounded-xl text-left flex items-center justify-between";
+        }
+
+        function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+        function generateSensi() {
+            let base;
+            if (currentMode === 'geral') {
+                const nivel = selectedLevel;
+                if (selectedSO === 'iOS') {
+                    base = nivel === 'Baixa' ? {g:rand(95,135), pv:rand(135,185), m2:rand(135,175), m4:rand(135,185), awm:rand(35,75), ol:rand(60,95), bt:rand(42,55), dpi:'120 (Rápido / Curso)'}
+                         : nivel === 'Média' ? {g:rand(130,170), pv:rand(140,185), m2:rand(135,160), m4:rand(135,170), awm:rand(30,45), ol:rand(70,90), bt:rand(40,52), dpi:'120 (Rápido / Curso)'}
+                         : nivel === 'Alta'  ? {g:rand(150,200), pv:rand(165,200), m2:rand(160,200), m4:rand(160,200), awm:rand(40,55), ol:rand(80,100), bt:rand(38,48), dpi:'120 (Rápido / Curso)'}
+                                             : {g:rand(180,200), pv:rand(190,200), m2:rand(190,200), m4:rand(190,200), awm:rand(45,85), ol:rand(70,85), bt:rand(35,45), dpi:'Padrão iOS (Rápido)'};
+                } else {
+                    base = nivel === 'Baixa' ? {g:rand(90,130), pv:rand(130,180), m2:rand(130,170), m4:rand(130,180), awm:rand(30,75), ol:rand(50,90), bt:rand(50,70), dpi:rand(410,520) + ' DPI'}
+                         : nivel === 'Média' ? {g:rand(120,160), pv:rand(130,170), m2:rand(130,150), m4:rand(130,160), awm:rand(25,35), ol:rand(60,80), bt:rand(50,75), dpi:rand(450,610) + ' DPI'}
+                         : nivel === 'Alta'  ? {g:rand(130,200), pv:rand(150,200), m2:rand(150,200), m4:rand(150,200), awm:rand(35,45), ol:rand(70,90), bt:rand(51,70), dpi:rand(620,820) + ' DPI'}
+                                             : {g:rand(170,200), pv:rand(180,200), m2:rand(180,200), m4:rand(180,200), awm:rand(40,80), ol:rand(60,75), bt:rand(35,62), dpi: 'Padrão do Aparelho (Sem DPI)'};
+                }
+            } else {
+                if (selectedWeapon === 'DESERT') {
+                    base = {g:rand(185,200), pv:rand(190,200), m2:rand(160,180), m4:rand(160,180), awm:rand(40,60), ol:rand(80,100), bt:rand(40,45), dpi: selectedSO === 'iOS' ? '120 (Curso Rápido)' : rand(550,650) + ' DPI'};
+                } else if (selectedWeapon === 'M1014') {
+                    base = {g:rand(190,200), pv:rand(180,195), m2:rand(150,170), m4:rand(150,170), awm:rand(30,50), ol:rand(70,90), bt:rand(42,48), dpi: selectedSO === 'iOS' ? '120 (Curso Rápido)' : rand(520,600) + ' DPI'};
+                } else if (selectedWeapon === 'MP40') {
+                    base = {g:rand(170,190), pv:rand(175,190), m2:rand(170,190), m4:rand(165,185), awm:rand(35,55), ol:rand(75,95), bt:rand(48,55), dpi: selectedSO === 'iOS' ? '120 (Curso Rápido)' : rand(580,720) + ' DPI'};
+                } else if (selectedWeapon === 'UMP') {
+                    base = {g:rand(180,195), pv:rand(185,198), m2:rand(175,192), m4:rand(170,188), awm:rand(35,50), ol:rand(75,90), bt:rand(45,52), dpi: selectedSO === 'iOS' ? '120 (Curso Rápido)' : rand(560,680) + ' DPI'};
+                } else if (selectedWeapon === 'AC80') {
+                    base = {g:rand(175,192), pv:rand(180,195), m2:rand(182,198), m4:rand(180,198), awm:rand(45,65), ol:rand(78,92), bt:rand(41,47), dpi: selectedSO === 'iOS' ? '120 (Curso Rápido)' : rand(510,630) + ' DPI'};
+                } else {
+                    base = {g:rand(175,195), pv:rand(185,198), m2:rand(180,198), m4:rand(180,200), awm:rand(50,70), ol:rand(80,95), bt:rand(40,46), dpi: selectedSO === 'iOS' ? '120 (Curso Rápido)' : rand(500,620) + ' DPI'};
+                }
+            }
+
+            document.getElementById('valGeral').textContent = base.g;
+            document.getElementById('valRedDot').textContent = base.pv;
+            document.getElementById('valMira2x').textContent = base.m2;
+            document.getElementById('valMira4x').textContent = base.m4;
+            document.getElementById('valAwm').textContent = base.awm;
+            document.getElementById('valOlhadinha').textContent = base.ol;
+            document.getElementById('valBotaoTiro').textContent = base.bt + '%';
+            document.getElementById('valDpi').textContent = base.dpi;
+            document.getElementById('valVelocidade').textContent = selectedSO === 'iOS' ? '100% (Máxima)' : 'Máxima / Rápida';
+
+            const resultDiv = document.getElementById('sensiResult');
+            resultDiv.classList.remove('hidden');
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+            showToast("Sensibilidade gerada com sucesso!", 'success');
+        }
+
+        function copySensitivity() {
+            const geral = document.getElementById('valGeral').textContent;
+            const redDot = document.getElementById('valRedDot').textContent;
+            const m2x = document.getElementById('valMira2x').textContent;
+            const m4x = document.getElementById('valMira4x').textContent;
+            const opt1Label = document.getElementById('labelSysOpt1').textContent;
+            const opt1Val = document.getElementById('valDpi').textContent;
+            const btnTiro = document.getElementById('valBotaoTiro').textContent;
+
+            const modeLabel = currentMode === 'armas' ? `ARMA: ${selectedWeapon}` : 'MODO GERAL';
+            const textToCopy = `🔥 OPTILAG PRO VIP FF (${selectedSO} - ${modeLabel}) 🔥\nGeral: ${geral}\nP. Vermelho: ${redDot}\nMira 2x: ${m2x}\nMira 4x: ${m4x}\nBotão de Tiro: ${btnTiro}\n${opt1Label} ${opt1Val}`;
+
+            navigator.clipboard.writeText(textToCopy);
+
+            const btnText = document.getElementById('copyBtnText');
+            btnText.textContent = "COPIADO COM SUCESSO!";
+            showToast("Configuração copiada para a área de transferência!", 'success');
+            setTimeout(() => {
+                btnText.textContent = "COPIAR CONFIGURAÇÃO";
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
