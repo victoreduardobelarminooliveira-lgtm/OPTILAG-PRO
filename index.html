@@ -712,42 +712,29 @@
             }
         }
 
-        // Abertura Direta do Jogo (Intent Blindada e Forçada para Android/PWA)
+        // Abertura Direta do Jogo (Método de Iframe Oculto + Fallback Android/iOS)
         function launchGame(game) {
             showToast("Abrindo o jogo...", 'success');
             const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || selectedSO === 'iOS';
+            const pacote = game === 'ff' ? 'com.dts.freefireth' : 'com.dts.freefiremax';
             
             setTimeout(() => {
-                if (game === 'ff') {
-                    if (isIOS) {
-                        window.location.href = "freefire://";
-                        setTimeout(() => { 
-                            window.location.href = "https://apps.apple.com/app/id1300146653"; 
-                        }, 1500);
-                    } else {
-                        // Intent nativa aprimorada com action e component para forçar o app instalado
-                        const intentUrl = "intent://#Intent;package=com.dts.freefireth;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;end;";
-                        window.location.href = intentUrl;
-                        
-                        // Fallback de segurança caso o navegador restringe a intent pura
-                        setTimeout(() => {
-                            window.location.href = "android-app://com.dts.freefireth";
-                        }, 400);
-                    }
+                if (isIOS) {
+                    const scheme = game === 'ff' ? 'freefire://' : 'freefiremax://';
+                    const storeUrl = game === 'ff' ? 'https://apps.apple.com/app/id1300146653' : 'https://apps.apple.com/app/id1480516829';
+                    window.location.href = scheme;
+                    setTimeout(() => { window.location.href = storeUrl; }, 1500);
                 } else {
-                    if (isIOS) {
-                        window.location.href = "freefiremax://";
-                        setTimeout(() => { 
-                            window.location.href = "https://apps.apple.com/app/id1480516829"; 
-                        }, 1500);
-                    } else {
-                        const intentUrlMax = "intent://#Intent;package=com.dts.freefiremax;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;end;";
-                        window.location.href = intentUrlMax;
-                        
-                        setTimeout(() => {
-                            window.location.href = "android-app://com.dts.freefiremax";
-                        }, 400);
-                    }
+                    // Criação de iframe oculto para disparar a Intent direto sem redirecionar a aba principal
+                    const iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = `intent://launch/#Intent;package=${pacote};scheme=freefire;end;`;
+                    document.body.appendChild(iframe);
+                    
+                    setTimeout(() => {
+                        document.body.removeChild(iframe);
+                        window.location.href = `android-app://${pacote}`;
+                    }, 500);
                 }
             }, 400);
         }
