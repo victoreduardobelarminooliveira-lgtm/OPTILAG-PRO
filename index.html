@@ -712,7 +712,7 @@
             }
         }
 
-        // Abertura Direta do Jogo (Blindada para Web e PWA)
+        // Abertura Direta do Jogo (Intent Blindada e Forçada para Android/PWA)
         function launchGame(game) {
             showToast("Abrindo o jogo...", 'success');
             const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || selectedSO === 'iOS';
@@ -725,8 +725,14 @@
                             window.location.href = "https://apps.apple.com/app/id1300146653"; 
                         }, 1500);
                     } else {
-                        // Disparo com Intent e fallback inteligente para Play Store
-                        window.location.href = "intent://#Intent;package=com.dts.freefireth;action=android.intent.action.VIEW;category=android.intent.category.DEFAULT;end";
+                        // Intent nativa aprimorada com action e component para forçar o app instalado
+                        const intentUrl = "intent://#Intent;package=com.dts.freefireth;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;end;";
+                        window.location.href = intentUrl;
+                        
+                        // Fallback de segurança caso o navegador restringe a intent pura
+                        setTimeout(() => {
+                            window.location.href = "android-app://com.dts.freefireth";
+                        }, 400);
                     }
                 } else {
                     if (isIOS) {
@@ -735,7 +741,12 @@
                             window.location.href = "https://apps.apple.com/app/id1480516829"; 
                         }, 1500);
                     } else {
-                        window.location.href = "intent://#Intent;package=com.dts.freefiremax;action=android.intent.action.VIEW;category=android.intent.category.DEFAULT;end";
+                        const intentUrlMax = "intent://#Intent;package=com.dts.freefiremax;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;end;";
+                        window.location.href = intentUrlMax;
+                        
+                        setTimeout(() => {
+                            window.location.href = "android-app://com.dts.freefiremax";
+                        }, 400);
                     }
                 }
             }, 400);
