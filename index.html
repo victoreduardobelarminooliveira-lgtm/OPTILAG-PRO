@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OPTILAG PRO - Painel VIP & Otimização</title>
 
-    <!-- ÍCONE OFICIAL PARA TELA INICIAL (ANDROID / IOS) -->
+    <!-- MANIFESTO PWA PARA ÍCONE OFICIAL NA TELA INICIAL -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#00f0ff">
     <link rel="apple-touch-icon" href="27155.jpg">
     <link rel="shortcut icon" href="27155.jpg" type="image/jpeg">
 
@@ -65,7 +67,6 @@
             border-radius: 4px;
         }
 
-        /* Animação Toast Notification */
         @keyframes toastIn {
             from { transform: translateY(-20px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
@@ -79,6 +80,27 @@
 
     <!-- SYSTEM TOAST NOTIFICATION CONTAINER -->
     <div id="toastContainer" class="fixed top-4 z-50 left-1/2 -translate-x-1/2 w-11/12 max-w-sm pointer-events-none flex flex-col gap-2"></div>
+
+    <!-- MODAL DE INSTRUÇÕES DE SISTEMA -->
+    <div id="systemModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-cyberCard border border-neonCyan/40 rounded-2xl p-5 max-w-sm w-full space-y-4 shadow-2xl glow-cyan">
+            <div class="flex items-center justify-between border-b border-cyberBorder pb-3">
+                <div class="flex items-center gap-2 text-neonCyan">
+                    <i id="modalIcon" class="fa-solid fa-mobile-screen text-lg"></i>
+                    <h3 id="modalTitle" class="font-orbitron font-bold text-sm text-white uppercase">Instruções do Sistema</h3>
+                </div>
+                <button onclick="closeSystemModal()" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div id="modalBody" class="text-xs text-slate-300 space-y-2 leading-relaxed">
+                <!-- Conteúdo injetado via JS -->
+            </div>
+            <button onclick="closeSystemModal()" class="w-full bg-gradient-to-r from-neonBlue to-neonCyan text-cyberDark font-orbitron font-bold py-2.5 rounded-xl text-xs uppercase shadow">
+                Entendido
+            </button>
+        </div>
+    </div>
 
     <main class="w-full max-w-lg relative z-10 space-y-5">
 
@@ -669,20 +691,12 @@
         let selectedWeapon = 'DESERT';
         const VALID_KEY = "VIP2026";
 
-        // Sistema de Notificações Flutuantes (Toast)
         function showToast(message, type = 'success') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
-            
             const isSuccess = type === 'success';
-            toast.className = `toast-animate px-4 py-2.5 rounded-xl border text-xs font-orbitron font-bold flex items-center gap-2 shadow-2xl backdrop-blur-md ${
-                isSuccess 
-                ? 'bg-emerald-950/90 text-emerald-300 border-emerald-500/50' 
-                : 'bg-rose-950/90 text-rose-300 border-rose-500/50'
-            }`;
-            
+            toast.className = `toast-animate px-4 py-2.5 rounded-xl border text-xs font-orbitron font-bold flex items-center gap-2 shadow-2xl backdrop-blur-md ${isSuccess ? 'bg-emerald-950/90 text-emerald-300 border-emerald-500/50' : 'bg-rose-950/90 text-rose-300 border-rose-500/50'}`;
             toast.innerHTML = `<i class="fa-solid ${isSuccess ? 'fa-circle-check text-emerald-400' : 'fa-circle-xmark text-rose-400'}"></i> <span>${message}</span>`;
-            
             container.appendChild(toast);
             setTimeout(() => {
                 toast.classList.add('opacity-0', 'transition-opacity', 'duration-300');
@@ -698,31 +712,29 @@
             }
         }
 
-        // Abertura Direta do Jogo (Cross-Platform)
         function launchGame(game) {
-            showToast("Iniciando o jogo... Boa partida!", 'success');
+            showToast("Iniciando o jogo...", 'success');
             const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-            
             setTimeout(() => {
                 if (game === 'ff') {
                     if (isIOS) {
                         window.location.href = "freefire://";
                         setTimeout(() => { window.location.href = "https://apps.apple.com/app/id1300146653"; }, 1500);
                     } else {
-                        window.location.href = "intent://#Intent;package=com.dts.freefireth;scheme=android-app;end";
+                        window.location.href = "intent://#Intent;package=com.dts.freefireth;action=android.intent.action.VIEW;category=android.intent.category.DEFAULT;end";
                     }
                 } else {
                     if (isIOS) {
                         window.location.href = "freefiremax://";
                         setTimeout(() => { window.location.href = "https://apps.apple.com/app/id1480516829"; }, 1500);
                     } else {
-                        window.location.href = "intent://#Intent;package=com.dts.freefiremax;scheme=android-app;end";
+                        window.location.href = "intent://#Intent;package=com.dts.freefiremax;action=android.intent.action.VIEW;category=android.intent.category.DEFAULT;end";
                     }
                 }
-            }, 500);
+            }, 400);
         }
 
-        // PWA (Atalho Tela Inicial)
+        // PWA Instalação Inteligente com Captura de Evento
         let deferredPrompt = null;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -732,7 +744,16 @@
         function installPWA() {
             const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
             if (isIOS) {
-                alert("Para instalar no iPhone:\n1. Toque no botão 'Compartilhar' do Safari (ícone com quadrado e seta).\n2. Selecione 'Adicionar à Tela de Início'.");
+                openSystemModal(
+                    "Instalação no iPhone (iOS)",
+                    "fa-brands fa-apple text-neonCyan",
+                    `<p>Para adicionar o <strong>OPTILAG PRO</strong> com o ícone oficial na tela inicial:</p>
+                     <ol class='list-decimal pl-4 space-y-1.5 mt-2'>
+                        <li>Toque no botão <strong>Compartilhar</strong> (quadrado com seta para cima) na barra do Safari.</li>
+                        <li>Role o menu para baixo e selecione <strong>'Adicionar à Tela de Início'</strong>.</li>
+                        <li>Confirme em <strong>'Adicionar'</strong> no canto superior direito.</li>
+                     </ol>`
+                );
             } else if (deferredPrompt) {
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then((choiceResult) => {
@@ -742,21 +763,55 @@
                     deferredPrompt = null;
                 });
             } else {
-                alert("Para instalar na tela inicial:\n1. Clique nos três pontinhos do navegador.\n2. Escolha 'Adicionar à tela inicial' ou 'Instalar aplicativo'.");
+                openSystemModal(
+                    "Atalho na Tela Inicial (Android)",
+                    "fa-solid fa-mobile-screen text-neonCyan",
+                    `<p>Para fixar o painel na sua tela inicial com o ícone oficial:</p>
+                     <ol class='list-decimal pl-4 space-y-1.5 mt-2'>
+                        <li>Toque nos <strong>três pontinhos (menu)</strong> no canto superior direito do seu navegador.</li>
+                        <li>Selecione a opção <strong>'Adicionar à tela inicial'</strong> ou <strong>'Instalar aplicativo'</strong>.</li>
+                        <li>Confirme tocando em <strong>'Instalar'</strong> ou <strong>'Adicionar'</strong>.</li>
+                     </ol>`
+                );
             }
         }
 
+        // Configurações do Sistema com Modal Inteligente de Guia
         function openDeveloperSettings() {
             const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
             if (isIOS) {
-                alert("Orientações iOS (Acessibilidade):\nAcesse: Ajustes > Acessibilidade > Controle por Chaves / Adaptações ao Toque para ajustar o tempo de resposta.");
+                openSystemModal(
+                    "Acessibilidade iOS",
+                    "fa-brands fa-apple text-neonCyan",
+                    `<p>Acesse os ajustes do seu iPhone para calibrar a resposta do toque:</p>
+                     <ul class='list-disc pl-4 space-y-1.5 mt-2'>
+                        <li>Vá em <strong>Ajustes > Acessibilidade > Toque > Adaptações ao Toque</strong> e ative.</li>
+                        <li>Vá em <strong>Controle por Chaves</strong> para configurar o curso rápido em 120.</li>
+                     </ul>`
+                );
             } else {
-                try {
-                    window.location.href = "intent://#Intent;action=android.settings.APPLICATION_DEVELOPMENT_SETTINGS;end";
-                } catch (e) {
-                    alert("Acesse: Configurações > Sobre o telefone > Toque 7 vezes em 'Número da versão' para ativar as Opções do Desenvolvedor.");
-                }
+                openSystemModal(
+                    "Opções do Desenvolvedor (Android)",
+                    "fa-solid fa-gear text-amber-400",
+                    `<p>Como os navegadores bloqueiam abertura automática de configurações do sistema por segurança, siga este atalho rápido:</p>
+                     <ol class='list-decimal pl-4 space-y-1.5 mt-2'>
+                        <li>Abra as <strong>Configurações</strong> gerais do seu celular.</li>
+                        <li>Vá em <strong>Sobre o telefone</strong> e toque 7 vezes em <strong>Número da versão</strong>.</li>
+                        <li>Volte e acesse <strong>Sistema > Opções do desenvolvedor</strong> para ajustar as escalas de animação para 0.5x.</li>
+                     </ol>`
+                );
             }
+        }
+
+        function openSystemModal(title, iconClass, htmlContent) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalIcon').className = iconClass;
+            document.getElementById('modalBody').innerHTML = htmlContent;
+            document.getElementById('systemModal').classList.remove('hidden');
+        }
+
+        function closeSystemModal() {
+            document.getElementById('systemModal').classList.add('hidden');
         }
 
         function showFeedback(text, isError = false) {
@@ -776,10 +831,7 @@
                     document.getElementById('loginSection').classList.add('hidden');
                     document.getElementById('dashboardSection').classList.remove('hidden');
                     document.getElementById('bottomNav').classList.remove('hidden');
-                    
-                    // Resetar checkboxes no login
                     document.querySelectorAll('.opt-checkbox').forEach(cb => cb.checked = false);
-
                     startHardwareDiagnostic();
                     showToast("Sessão VIP Autenticada!", 'success');
                 }, 800);
@@ -1035,7 +1087,7 @@
                     base = nivel === 'Baixa' ? {g:rand(90,130), pv:rand(130,180), m2:rand(130,170), m4:rand(130,180), awm:rand(30,75), ol:rand(50,90), bt:rand(50,70), dpi:rand(410,520) + ' DPI'}
                          : nivel === 'Média' ? {g:rand(120,160), pv:rand(130,170), m2:rand(130,150), m4:rand(130,160), awm:rand(25,35), ol:rand(60,80), bt:rand(50,75), dpi:rand(450,610) + ' DPI'}
                          : nivel === 'Alta'  ? {g:rand(130,200), pv:rand(150,200), m2:rand(150,200), m4:rand(150,200), awm:rand(35,45), ol:rand(70,90), bt:rand(51,70), dpi:rand(620,820) + ' DPI'}
-                                             : {g:rand(170,200), pv:rand(180,200), m2:rand(180,200), m4:rand(180,200), awm:rand(40,80), ol:rand(60,75), bt:rand(35,62), dpi: 'Padrão do Aparelho (Sem DPI)'};
+                                             : {g:rand(170,200), pv:rand(180,200), m2:rand(180,200), m4:rand(180,200), awm:rand(40,80), ol:rand(60,75), dpi: 'Padrão do Aparelho (Sem DPI)'};
                 }
             } else {
                 if (selectedWeapon === 'DESERT') {
