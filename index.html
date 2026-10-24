@@ -712,21 +712,28 @@
             }
         }
 
+        // Abertura Direta do Jogo (Blindada para Web e PWA)
         function launchGame(game) {
-            showToast("Iniciando o jogo...", 'success');
-            const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+            showToast("Abrindo o jogo...", 'success');
+            const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || selectedSO === 'iOS';
+            
             setTimeout(() => {
                 if (game === 'ff') {
                     if (isIOS) {
                         window.location.href = "freefire://";
-                        setTimeout(() => { window.location.href = "https://apps.apple.com/app/id1300146653"; }, 1500);
+                        setTimeout(() => { 
+                            window.location.href = "https://apps.apple.com/app/id1300146653"; 
+                        }, 1500);
                     } else {
+                        // Disparo com Intent e fallback inteligente para Play Store
                         window.location.href = "intent://#Intent;package=com.dts.freefireth;action=android.intent.action.VIEW;category=android.intent.category.DEFAULT;end";
                     }
                 } else {
                     if (isIOS) {
                         window.location.href = "freefiremax://";
-                        setTimeout(() => { window.location.href = "https://apps.apple.com/app/id1480516829"; }, 1500);
+                        setTimeout(() => { 
+                            window.location.href = "https://apps.apple.com/app/id1480516829"; 
+                        }, 1500);
                     } else {
                         window.location.href = "intent://#Intent;package=com.dts.freefiremax;action=android.intent.action.VIEW;category=android.intent.category.DEFAULT;end";
                     }
@@ -734,7 +741,7 @@
             }, 400);
         }
 
-        // PWA Instalação Inteligente com Captura de Evento
+        // PWA Instalação Inteligente (Focada no Sistema Selecionado ou Detectado)
         let deferredPrompt = null;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -742,16 +749,18 @@
         });
 
         function installPWA() {
-            const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-            if (isIOS) {
+            const isIOSDevice = /iphone|ipad|ipod/i.test(navigator.userAgent) || selectedSO === 'iOS';
+
+            if (isIOSDevice) {
                 openSystemModal(
-                    "Instalação no iPhone (iOS)",
+                    "INSTALAÇÃO NA TELA INICIAL (IOS / IPHONE)",
                     "fa-brands fa-apple text-neonCyan",
-                    `<p>Para adicionar o <strong>OPTILAG PRO</strong> com o ícone oficial na tela inicial:</p>
+                    `<p>Para adicionar o <strong>OPTILAG PRO</strong> com o ícone oficial na tela inicial do seu iPhone:</p>
                      <ol class='list-decimal pl-4 space-y-1.5 mt-2'>
-                        <li>Toque no botão <strong>Compartilhar</strong> (quadrado com seta para cima) na barra do Safari.</li>
-                        <li>Role o menu para baixo e selecione <strong>'Adicionar à Tela de Início'</strong>.</li>
-                        <li>Confirme em <strong>'Adicionar'</strong> no canto superior direito.</li>
+                        <li>Abra este painel obrigatoriamente pelo navegador <strong>Safari</strong>.</li>
+                        <li>Toque no botão <strong>Compartilhar</strong> (o ícone do quadrado com a seta para cima) na barra inferior.</li>
+                        <li>Role as opções para baixo e selecione <strong>'Adicionar à Tela de Início'</strong>.</li>
+                        <li>Confirme tocando em <strong>'Adicionar'</strong> no canto superior direito.</li>
                      </ol>`
                 );
             } else if (deferredPrompt) {
@@ -764,9 +773,9 @@
                 });
             } else {
                 openSystemModal(
-                    "Atalho na Tela Inicial (Android)",
+                    "ATALHO NA TELA INICIAL (ANDROID)",
                     "fa-solid fa-mobile-screen text-neonCyan",
-                    `<p>Para fixar o painel na sua tela inicial com o ícone oficial:</p>
+                    `<p>Para fixar o painel na sua tela inicial do Android com o ícone oficial:</p>
                      <ol class='list-decimal pl-4 space-y-1.5 mt-2'>
                         <li>Toque nos <strong>três pontinhos (menu)</strong> no canto superior direito do seu navegador.</li>
                         <li>Selecione a opção <strong>'Adicionar à tela inicial'</strong> ou <strong>'Instalar aplicativo'</strong>.</li>
@@ -776,28 +785,30 @@
             }
         }
 
-        // Configurações do Sistema com Modal Inteligente de Guia
+        // Configurações do Sistema com Guia Dinâmico (Android ou iOS)
         function openDeveloperSettings() {
-            const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-            if (isIOS) {
+            const isIOSDevice = /iphone|ipad|ipod/i.test(navigator.userAgent) || selectedSO === 'iOS';
+
+            if (isIOSDevice) {
                 openSystemModal(
-                    "Acessibilidade iOS",
+                    "AJUSTES DE ACESSIBILIDADE (IOS)",
                     "fa-brands fa-apple text-neonCyan",
-                    `<p>Acesse os ajustes do seu iPhone para calibrar a resposta do toque:</p>
+                    `<p>Siga este caminho no seu iPhone para calibrar a resposta do toque e zerar o atraso:</p>
                      <ul class='list-disc pl-4 space-y-1.5 mt-2'>
                         <li>Vá em <strong>Ajustes > Acessibilidade > Toque > Adaptações ao Toque</strong> e ative.</li>
-                        <li>Vá em <strong>Controle por Chaves</strong> para configurar o curso rápido em 120.</li>
+                        <li>Acesse <strong>Controle por Chaves</strong> para configurar o curso rápido em 120.</li>
+                        <li>Deixe o <strong>AssistiveTouch</strong> com a sensibilidade de rastreamento no máximo.</li>
                      </ul>`
                 );
             } else {
                 openSystemModal(
-                    "Opções do Desenvolvedor (Android)",
+                    "OPÇÕES DO DESENVOLVEDOR (ANDROID)",
                     "fa-solid fa-gear text-amber-400",
-                    `<p>Como os navegadores bloqueiam abertura automática de configurações do sistema por segurança, siga este atalho rápido:</p>
+                    `<p>Como os navegadores bloqueiam abertura automática de configurações internas por segurança, siga este atalho:</p>
                      <ol class='list-decimal pl-4 space-y-1.5 mt-2'>
                         <li>Abra as <strong>Configurações</strong> gerais do seu celular.</li>
-                        <li>Vá em <strong>Sobre o telefone</strong> e toque 7 vezes em <strong>Número da versão</strong>.</li>
-                        <li>Volte e acesse <strong>Sistema > Opções do desenvolvedor</strong> para ajustar as escalas de animação para 0.5x.</li>
+                        <li>Vá em <strong>Sobre o telefone</strong> e toque 7 vezes seguidas em <strong>Número da versão</strong>.</li>
+                        <li>Volte no menu principal, acesse <strong>Sistema > Opções do desenvolvedor</strong> e ajuste as escalas de animação para 0.5x.</li>
                      </ol>`
                 );
             }
